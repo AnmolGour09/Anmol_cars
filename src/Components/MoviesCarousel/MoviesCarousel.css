@@ -1,0 +1,285 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+.movies-list {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  margin: 10px 0 20px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+  padding-left: 10px;
+  background: #000;
+  border-color: #000;
+}
+
+.movies-list::-webkit-scrollbar-track {
+  background-color: #000000;
+}
+
+.movies-list::-webkit-scrollbar {
+  display: none;
+}
+
+.card-container {
+  position: relative;
+  width: 100%;
+  /* background-color: red; */
+  padding: 70px 70px 70px 70px;
+  height: 100%;
+  display: flex;
+
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-behavior: smooth;
+   gap: 50px; 
+}
+
+.card-container::-webkit-scrollbar-track {
+  background-color: #000000;
+}
+
+.card-container::-webkit-scrollbar {
+  display: none;
+}
+.card {
+  position: relative;
+  min-width: 43%;
+  height: 100%;
+  width: 92%;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #000000;
+  margin-right: 20px; /* gap between boxes */
+  transition: 0.5s;
+
+  /* Equal shadow on all sides */
+
+}
+
+
+/* Make shadow stronger on hover */
+.card:hover {
+  transform: scale(1.5s);
+  box-shadow: 0 0 20px rgba(236, 3, 3, 0.6);
+}
+
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card:hover {
+  transform: scale(1.1);
+}
+
+.card:hover .card-body {
+  opacity: 1;
+}
+/* 
+.card-body {
+display: flex;
+  flex-direction: column;
+  align-items: center;    
+  justify-content: center; 
+  height: 100%;
+  text-align: center;     
+  padding: 10px;   
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 25%;
+  z-index: 0;
+ background: linear-gradient(to bottom, rgba(4, 8, 15, 0), rgba(4, 8, 15, 0));
+
+  padding: 10px;
+  transition: 0.5s;
+} */
+
+.name {
+  color: #ff0000;
+  font-size: 2rem;
+  margin: 0.5rem 0 0.25rem;
+  font-weight: auto;
+  text-transform: capitalize;
+}
+
+.des {
+  color: #ffffff;
+  opacity: 0.8;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 50%;
+}
+
+.rating {
+  color: #fff;
+  opacity: 0;
+  font-weight: 500;
+  font-size: 2px;
+}
+
+.watchlist-btn {
+  position: relative;
+  width: auto;
+  text-transform: capitalize;
+  border: none;
+  font-weight: 500;
+  text-align: right;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: -20%;
+  padding: 0.4rem 0.8rem;
+  
+  
+  /* 🔴 Red background */
+  background: rgb(109, 16, 16);
+  color: #fff;
+}
+
+.watchlist-btn:hover {
+  background: darkred; /* darker red on hover */
+  color: #fff;
+}
+
+
+.watchlist-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -5px;
+  height: 35px;
+  width: 35px;
+  background-image: url(hotstar_add.png);
+  background-size: cover;
+  transform: scale(0.4);
+  
+}
+
+.pre-btn,
+.nxt-btn {
+  
+  position: absolute;
+  top: 0%;
+  width: auto;
+  height: 100%;
+  z-index: 2;
+  border: 10px;
+  border-radius: 100%;
+  cursor: pointer;
+  outline: 10px;
+  transition: 0.5s;
+}
+
+.pre-btn {
+  left: 0;
+  background: linear-gradient(to right, #000000 0%, #00000000);
+}
+
+.nxt-btn {
+  right: 0;
+  background: linear-gradient(to left, #000000 0%, #00000000);
+}
+
+.pre-btn img,
+.nxt-btn img {
+  width: 100%;
+  height: 20px;
+  opacity: 0;
+}
+
+.pre-btn:hover img,
+.nxt-btn:hover img {
+  opacity: 10;
+}
+
+.pre-btn:hover,
+.nxt-btn:hover {
+  background: linear-gradient(to left, #5c2222 0%, #00000080);
+}
+
+.pre-btn:active,
+.nxt-btn:active {
+  background: linear-gradient(to left, #000000 0%, #00000080);
+}
+
+.pre-btn:active img,
+.nxt-btn:active img {
+  opacity: 1;
+}
+
+/* Wrap and blur only the background image */
+.card-img-blur-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Apply blur to the image only */
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(6px);
+  transform: scale(0.9); /* zoom slightly to hide edges */
+}
+
+/* Foreground content stays sharp */
+.card-body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  padding: px;
+  background-color: rgba(0, 0, 0, 0.3); /* optional: dark glass effect */
+  backdrop-filter: none;
+}
+
+
+.name {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  color: #ff0000;
+  font-size: 2rem;
+  margin: 0.5rem 0 0.25rem;
+  font-weight: auto;
+  text-transform: capitalize;
+}
+
+.name::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  left: 50%;
+  bottom: -5px;
+  background: linear-gradient(to right, transparent, #FF0000, transparent);
+  box-shadow: 0 0 3px #FF0000, 0 0 px #FF0000;
+  transform: translateX(-50%);
+  transition: width 0.3s ease-in-out;
+}
+
+/* Hover directly on name */
+.name:hover::after {
+  width: 100%;
+}
+
+/* Hover anywhere inside card-body */
+.card-body:hover .name::after {
+  width: 100%;
+}
