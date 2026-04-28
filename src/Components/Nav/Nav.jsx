@@ -34,6 +34,12 @@ function Nav() {
           <li className="text-lg font-semibold cursor-pointer transition hover:text-red-400">
             <Link to="/">Car</Link>
           </li>
+          {/* Nav.jsx mein is line ko dhoondhein aur aise fix karein testing ke liye */}
+<li>
+  <Link to="/admin" className="text-lg font-semibold hover:text-red-400">
+    Admin
+  </Link>
+</li>
           <li>
             <a
               href="#AboutUs"
