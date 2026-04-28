@@ -25,14 +25,19 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+      setError("All fields are required.");
       return;
     }
 
-    setLoading(true);
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
     try {
+      setLoading(true);
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         form.email,
@@ -44,11 +49,12 @@ export default function Register() {
       await setDoc(doc(db, "users", user.uid), {
         name: form.name,
         email: form.email,
+        role: "user",
       });
 
       navigate("/login");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.message || "Registration failed.");
     } finally {
       setLoading(false);
     }
@@ -56,64 +62,36 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4 pt-24">
-      <div className="w-full max-w-md bg-[#111] border border-red-500/30 rounded-2xl p-8 shadow-lg shadow-red-500/10">
-        <h2 className="text-3xl font-bold text-white text-center mb-2">
+      <div className="w-full max-w-md bg-[#111] p-8 rounded-2xl border border-red-500/30">
+        <h2 className="text-3xl text-white text-center font-bold mb-6">
           Create Account
         </h2>
 
         {error && <div className="text-red-400 mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white"
-          />
+          <input type="text" name="name" placeholder="Full Name" value={form.name} onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white" />
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white"
-          />
+          <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white" />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white"
-          />
+          <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white" />
 
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white"
-          />
+          <input type="password" name="confirmPassword" placeholder="Confirm Password"
+            value={form.confirmPassword} onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white" />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 rounded bg-red-600 text-white"
-          >
+          <button type="submit" disabled={loading}
+            className="w-full py-2 rounded bg-red-600 text-white">
             {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
-        <p className="mt-4 text-gray-400 text-sm text-center">
+        <p className="text-center text-gray-400 mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-red-500">
-            Login
-          </Link>
+          <Link to="/login" className="text-red-500">Login</Link>
         </p>
       </div>
     </div>
