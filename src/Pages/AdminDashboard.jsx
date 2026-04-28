@@ -3,6 +3,11 @@ import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 
 export default function AdminDashboard() {
+  // Security State
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [adminCreds, setAdminCreds] = useState({ email: "", password: "" });
+
+  // Car Form State
   const [car, setCar] = useState({
     brand: "",
     model: "",
@@ -13,6 +18,20 @@ export default function AdminDashboard() {
   });
   const [status, setStatus] = useState("");
 
+  // 1. Admin Login Verification Logic
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    if (
+      adminCreds.email === "gouranmol7276@gmail.com" &&
+      adminCreds.password === "Anmol@1234"
+    ) {
+      setIsAdminAuthenticated(true);
+    } else {
+      alert("Unauthorized! Galat Email ya Password.");
+    }
+  };
+
+  // 2. Car Form Handlers
   const handleInput = (e) => {
     setCar({ ...car, [e.target.name]: e.target.value });
   };
@@ -23,17 +42,60 @@ export default function AdminDashboard() {
     try {
       await addDoc(collection(db, "cars"), car);
       setStatus("Success! Car added.");
-      setCar({ brand: "", model: "", year: "", price: "", description: "", image: "" }); // Reset form
+      setCar({ brand: "", model: "", year: "", price: "", description: "", image: "" });
     } catch (err) {
       console.error(err);
       setStatus("Error adding car.");
     }
   };
 
+  // --- UI RENDER ---
+
+  // Agar authenticated nahi hai, toh Login Form dikhao
+  if (!isAdminAuthenticated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <div className="w-full max-w-md bg-[#111] p-8 rounded-2xl border border-red-500/30 shadow-2xl shadow-red-500/10">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">
+            Admin <span className="text-red-500">Access Only</span>
+          </h2>
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Admin Email"
+              className="w-full p-3 bg-black border border-gray-700 text-white rounded-lg outline-none focus:border-red-500"
+              onChange={(e) => setAdminCreds({ ...adminCreds, email: e.target.value })}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full p-3 bg-black border border-gray-700 text-white rounded-lg outline-none focus:border-red-500"
+              onChange={(e) => setAdminCreds({ ...adminCreds, password: e.target.value })}
+              required
+            />
+            <button className="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">
+              Verify Identity
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Agar authenticated hai, toh Dashboard (Car Add Form) dikhao
   return (
     <div className="min-h-screen bg-black pt-28 flex justify-center px-4">
       <div className="w-full max-w-lg bg-[#111] p-8 rounded-2xl border border-gray-800 h-fit">
-        <h2 className="text-2xl font-bold text-white mb-6">Add New <span className="text-red-500">Car</span></h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-white">Add New <span className="text-red-500">Car</span></h2>
+          <button 
+            onClick={() => setIsAdminAuthenticated(false)}
+            className="text-xs text-gray-500 hover:text-red-400 underline"
+          >
+            Logout Admin
+          </button>
+        </div>
         
         <form onSubmit={addCarToFirebase} className="space-y-4">
           <input name="brand" placeholder="Brand" onChange={handleInput} value={car.brand} className="w-full p-3 bg-black border border-gray-700 text-white rounded-lg outline-none focus:border-red-500" required />
@@ -46,7 +108,7 @@ export default function AdminDashboard() {
           <textarea name="description" placeholder="Description" onChange={handleInput} value={car.description} className="w-full p-3 bg-black border border-gray-700 text-white rounded-lg outline-none focus:border-red-500" rows="3" required></textarea>
           
           <button type="submit" className="w-full bg-red-600 text-white py-3 rounded-lg font-bold hover:bg-red-700 transition">
-            {status || "Add Car"}
+            {status || "Add Car to Showroom"}
           </button>
         </form>
       </div>
