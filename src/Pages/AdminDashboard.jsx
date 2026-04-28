@@ -13,13 +13,13 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || user.role !== "admin") {
+    if (!user || user.email !== "admin@gmail.com") {
       navigate("/");
       return;
     }
 
     fetchData();
-  }, [user]);
+  }, [user, navigate]);
 
   const fetchData = async () => {
     try {
@@ -27,36 +27,53 @@ export default function AdminDashboard() {
       const carsSnapshot = await getDocs(collection(db, "cars"));
       const interestsSnapshot = await getDocs(collection(db, "interests"));
 
-      const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const cars = carsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const interests = interestsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      const usersWithCars = users.map(u => ({
-        ...u,
-        interestedCars: interests
-          .filter(i => i.userId === u.id)
-          .map(i => cars.find(c => c.id === i.carId))
-          .filter(Boolean)
+      const users = usersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
       }));
 
-      const carsWithUsers = cars.map(c => ({
+      const cars = carsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const interests = interestsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const usersWithCars = users.map((u) => ({
+        ...u,
+        interestedCars: interests
+          .filter((i) => i.userId === u.id)
+          .map((i) => cars.find((c) => c.id === i.carId))
+          .filter(Boolean),
+      }));
+
+      const carsWithUsers = cars.map((c) => ({
         ...c,
         interestedUsers: interests
-          .filter(i => i.carId === c.id)
-          .map(i => users.find(u => u.id === i.userId))
-          .filter(Boolean)
+          .filter((i) => i.carId === c.id)
+          .map((i) => users.find((u) => u.id === i.userId))
+          .filter(Boolean),
       }));
 
       setUsersData(usersWithCars);
       setCarsData(carsWithUsers);
     } catch (err) {
-      console.error(err);
+      console.error("Admin dashboard error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="text-white text-center mt-20">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex justify-center items-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white p-10">
@@ -64,30 +81,50 @@ export default function AdminDashboard() {
         Admin Dashboard
       </h1>
 
+      {/* Users with Cars */}
       <div className="mb-10">
         <h2 className="text-2xl font-bold mb-4">Users with Interested Cars</h2>
-        {usersData.map(user => (
-          <div key={user.id} className="mb-4 p-4 bg-[#111] rounded">
-            <p className="font-bold">{user.name} ({user.email})</p>
-            <ul className="ml-4 mt-2 list-disc">
-              {user.interestedCars.map(car => (
-                <li key={car.id}>{car.brand} {car.model}</li>
-              ))}
-            </ul>
+
+        {usersData.map((u) => (
+          <div key={u.id} className="mb-4 p-4 bg-[#111] rounded">
+            <p className="font-bold">
+              {u.name} ({u.email})
+            </p>
+
+            {u.interestedCars.length > 0 ? (
+              <ul className="ml-4 mt-2 list-disc">
+                {u.interestedCars.map((car) => (
+                  <li key={car.id}>
+                    {car.brand} {car.model}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400 mt-2">No interests</p>
+            )}
           </div>
         ))}
       </div>
 
+      {/* Cars with Users */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Cars with Interested Users</h2>
-        {carsData.map(car => (
+
+        {carsData.map((car) => (
           <div key={car.id} className="mb-4 p-4 bg-[#111] rounded">
-            <p className="font-bold">{car.brand} {car.model}</p>
-            <ul className="ml-4 mt-2 list-disc">
-              {car.interestedUsers.map(user => (
-                <li key={user.id}>{user.name}</li>
-              ))}
-            </ul>
+            <p className="font-bold">
+              {car.brand} {car.model}
+            </p>
+
+            {car.interestedUsers.length > 0 ? (
+              <ul className="ml-4 mt-2 list-disc">
+                {car.interestedUsers.map((u) => (
+                  <li key={u.id}>{u.name}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400 mt-2">No interested users</p>
+            )}
           </div>
         ))}
       </div>
