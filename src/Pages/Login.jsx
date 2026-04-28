@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,25 +25,31 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    if (!form.email || !form.password) {
-      setError("Please enter both email and password.");
-      return;
-    }
-
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       const userCredential = await signInWithEmailAndPassword(
         auth,
         form.email,
         form.password
       );
 
-      const user = userCredential.user;
+      const firebaseUser = userCredential.user;
+
+      const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+
+      if (!userDoc.exists()) {
+        setError("User data not found.");
+        return;
+      }
+
+      const userData = userDoc.data();
 
       login({
-        uid: user.uid,
-        email: user.email,
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: userData.name,
+        role: userData.role,
       });
 
       navigate("/");
@@ -51,53 +62,31 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4 pt-24">
-      <div className="w-full max-w-md bg-[#111] border border-red-500/30 rounded-2xl p-8 shadow-lg shadow-red-500/10">
-        <h2 className="text-3xl font-bold text-white text-center mb-2">
+      <div className="w-full max-w-md bg-[#111] p-8 rounded-2xl border border-red-500/30">
+        <h2 className="text-3xl text-white text-center font-bold mb-6">
           Welcome Back
         </h2>
-        <p className="text-gray-400 text-center mb-6 text-sm">
-          Login to your Car Website account
-        </p>
 
-        {error && (
-          <div className="mb-4 p-3 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div className="text-red-400 mb-4">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white"
-          />
+          <input type="email" name="email" placeholder="Email"
+            value={form.email} onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white" />
 
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white"
-          />
+          <input type="password" name="password" placeholder="Password"
+            value={form.password} onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-black border border-gray-700 text-white" />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 rounded bg-red-600 text-white"
-          >
+          <button type="submit" disabled={loading}
+            className="w-full py-2 rounded bg-red-600 text-white">
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        <p className="mt-4 text-gray-400 text-sm text-center">
+        <p className="text-center text-gray-400 mt-4">
           Don't have an account?{" "}
-          <Link to="/register" className="text-red-500">
-            Register
-          </Link>
+          <Link to="/register" className="text-red-500">Register</Link>
         </p>
       </div>
     </div>
