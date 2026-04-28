@@ -17,6 +17,9 @@ export default function CarCard({ car }) {
   const [loading, setLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Default Image placeholder agar Firestore mein link na ho ya kharab ho
+  const defaultImage = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80";
+
   useEffect(() => {
     if (user) {
       checkInterest();
@@ -30,14 +33,8 @@ export default function CarCard({ car }) {
         where("userId", "==", user.uid),
         where("carId", "==", car.id)
       );
-
       const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        setInterested(true);
-      } else {
-        setInterested(false);
-      }
+      setInterested(!snapshot.empty);
     } catch (error) {
       console.error("Error checking interest:", error);
     }
@@ -48,29 +45,24 @@ export default function CarCard({ car }) {
       alert("Please login first.");
       return;
     }
-
     setLoading(true);
-
     try {
       const q = query(
         collection(db, "interests"),
         where("userId", "==", user.uid),
         where("carId", "==", car.id)
       );
-
       const snapshot = await getDocs(q);
 
       if (!snapshot.empty) {
-        // Remove interest
         await deleteDoc(snapshot.docs[0].ref);
         setInterested(false);
       } else {
-        // Add interest
         await addDoc(collection(db, "interests"), {
           userId: user.uid,
           carId: car.id,
-          brand: car.brand,
-          model: car.model,
+          brand: car.brand || "Unknown",
+          model: car.model || "Unknown",
         });
         setInterested(true);
       }
@@ -90,17 +82,25 @@ export default function CarCard({ car }) {
       </div>
 
       <div className="px-5 pb-5">
+        {/* --- FIXED IMAGE SECTION --- */}
         <img
-          src={car.image}
+          src={car.image || defaultImage} 
           alt={car.model}
           className="w-full h-48 object-cover rounded-lg mb-3"
+          // Agar link broken hai toh yeh default image load kar dega
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = defaultImage;
+          }}
         />
 
         <span className="text-red-400 text-sm font-semibold block mb-2">
           {car.year} • {car.price}
         </span>
 
-        <p className="text-gray-300 text-sm mb-4">{car.description}</p>
+        <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+          {car.description || "No description available."}
+        </p>
 
         <div className="flex gap-3">
           <button
@@ -113,10 +113,10 @@ export default function CarCard({ car }) {
           <button
             onClick={toggleInterest}
             disabled={loading}
-            className={`flex-1 py-2 rounded-lg ${
+            className={`flex-1 py-2 rounded-lg transition ${
               interested
                 ? "bg-red-600 text-white"
-                : "border border-red-500 text-red-500"
+                : "border border-red-500 text-red-500 hover:bg-red-500/10"
             }`}
           >
             {loading ? "..." : interested ? "Interested ✓" : "Interested"}
@@ -124,7 +124,7 @@ export default function CarCard({ car }) {
         </div>
 
         {showDetails && (
-          <div className="mt-4 p-3 bg-black/40 rounded-lg border border-gray-800">
+          <div className="mt-4 p-3 bg-black/40 rounded-lg border border-gray-800 animate-in fade-in duration-300">
             <p className="text-gray-300 text-sm">
               <strong className="text-white">Brand:</strong> {car.brand}
               <br />
